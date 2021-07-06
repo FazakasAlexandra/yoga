@@ -54,7 +54,7 @@ export default function ClientChart({ info }) {
   return (
     <div className='client-chart'>
       <h3>Attendences</h3>
-      {info.length ?
+      {canceledClasses || absentClasses || attendedClasses ?
         <Chart
           width={'100%'}
           height={'250px'}
