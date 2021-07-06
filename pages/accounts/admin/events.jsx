@@ -6,6 +6,7 @@ import AdminLayout from '../../../components/AdminLayout'
 import EventCard from '../../../components/EventCard'
 import EventForm from '../../../components/EventForm'
 import Feedback from '../../../components/Feedback'
+import Loader from '../../../components/Loader'
 import db from '../../../db'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
@@ -15,13 +16,16 @@ export default function Page() {
   const [session, loading] = useSession()
   const [events, setEvents] = useState([])
   const [eventsForm, setEventsForm] = useState(false)
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!loading && !session) router.push({ pathname: '/' })
   }, [session])
 
   useEffect(() => {
-    db.events.getEvents().then((res) => setEvents(res.data.reverse()))
+    db.events.getEvents()
+    .then((res) => setEvents(res.data.reverse()))
+    .finally(() => setIsLoading(false))
   }, [])
 
   const getEvents = () => {
@@ -104,7 +108,7 @@ export default function Page() {
           </div>
           <div className='events-layout'>{getEvents()}</div>
           {
-            !eventsForm && !events.length ?
+            isLoading ? <Loader/> : !eventsForm && !events.length ?
             <Feedback
               message='Time to add some events !'
               iconName='smile'

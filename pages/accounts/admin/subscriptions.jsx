@@ -5,6 +5,7 @@ import { useRouter } from 'next/router'
 import AdminLayout from '../../../components/AdminLayout'
 import SubscriptionCard from '../../../components/SubscriptionCard'
 import SubscriptionForm from '../../../components/SubscriptionForm'
+import Loader from '../../../components/Loader'
 import db from '../../../db'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
@@ -16,6 +17,7 @@ export default function Page() {
   const [session, loading] = useSession()
   const [subscriptions, setSubscriptions] = useState([])
   const [subscriptionsForms, setSubscriptionsForms] = useState([]) // [1, 2, 3, ...]
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!loading && !session) router.push({ pathname: '/' })
@@ -25,6 +27,7 @@ export default function Page() {
     db.subscriptions
       .getSubscriptions()
       .then((res) => setSubscriptions(res.data))
+      .finally(()=> setIsLoading(false))
   }, [])
 
   const removeSubscription = (id) =>
@@ -85,7 +88,7 @@ export default function Page() {
         </button>
         <div className='subscriptions-admin'>
           {
-            subscriptions.length || subscriptionsForms.length ?
+            isLoading ? <Loader/> : subscriptions.length || subscriptionsForms.length ?
               <>
                 {getSubscriptionForms()}
                 {getSubscriptions()}

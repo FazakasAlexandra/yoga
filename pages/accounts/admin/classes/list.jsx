@@ -10,6 +10,7 @@ import db from '../../../../db.js'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import Feedback from '../../../../components/Feedback'
+import Loader from '../../../../components/Loader'
 
 export default function Page() {
   const router = useRouter()
@@ -18,18 +19,22 @@ export default function Page() {
   const [currentPage, setCurrentPage] = useState(1)
   const [cardsPerPage, setCardsPerPage] = useState(6)
   const [classForm, setClassForm] = useState(false)
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!loading && !session) router.push({ pathname: '/' })
   }, [session])
 
   useEffect(() => {
-    db.classes.getClasses().then((res) => setClassesData(res.data.reverse()))
+    db.classes.getClasses()
+    .then((res) => setClassesData(res.data.reverse()))
+    .finally(() => setIsLoading(false))
   }, [])
 
   const deleteClass = (id) => {
     db.classes.deleteClass(id).then((res) => {
-      db.classes.getClasses().then((res) => setClassesData(res.data.reverse()))
+      db.classes.getClasses()
+      .then((res) => setClassesData(res.data.reverse()))
     })
   }
 
@@ -162,7 +167,7 @@ export default function Page() {
             ''
           )}
           <div className='class-body-list'>{classesCards()}</div>
-          {!classesData.length && !classForm ? (
+          {isLoading ? <Loader/> : !classesData.length && !classForm ? (
             <Feedback message='Time to add some classes !' iconName='smile' />
           ) : (
             <Pagination
