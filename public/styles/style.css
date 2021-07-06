@@ -28,6 +28,10 @@ ul {
   margin: 0rem !important;
 }
 
+.loader {
+  z-index: 1;
+}
+
 .bold-text {
   font-weight: bolder;
 }
@@ -395,6 +399,9 @@ header .navItem {
   justify-content: space-evenly;
   margin: 1rem;
   flex-wrap: wrap;
+}
+.subscriptions .loader {
+  color: black;
 }
 .subscriptions .color {
   width: 100%;
