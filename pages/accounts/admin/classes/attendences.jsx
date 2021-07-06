@@ -13,13 +13,15 @@ export default function Page() {
   const router = useRouter()
   const [session, loading] = useSession()
   const [attendences, setAttendences] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     if (!loading && !session) router.push({ pathname: '/' })
   }, [session])
 
   useEffect(() => {
-    db.classes.dailyAttendences('all').then((res) => {
+    db.classes.dailyAttendences('all')
+    .then((res) => {
       setAttendences(
         res.data
           .map((item) => item.class_name)
@@ -36,6 +38,7 @@ export default function Page() {
           )
       )
     })
+    .finally(() => setIsLoading(false))
   }, [])
 
   const formatData = (data) => {
@@ -69,7 +72,7 @@ export default function Page() {
         <AdminClassesLayout activeTab={'attendences'}>
           <div className='chart-container' style={{ width: '100%' }}>
             {
-              attendences.length ?
+              isLoading ? <Loader/> : attendences.length ?
                 <Chart
                   width={'99%'}
                   height={'700px'}

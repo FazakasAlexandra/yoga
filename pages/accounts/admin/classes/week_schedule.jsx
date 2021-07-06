@@ -1,10 +1,11 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/client'
 import Layout from '../../../../components/Layout'
 import { useRouter } from 'next/router'
 import AdminLayout from '../../../../components/AdminLayout'
 import AdminClassesLayout from '../../../../components/AdminClassesLayout'
 import DayScheduleCardForm from '../../../../components/DayScheduleCardForm'
+import Loader from '../../../../components/Loader'
 import db from '../../../../db.js'
 import TextField from '@material-ui/core/TextField'
 import { ThemeProvider } from '@material-ui/core'
@@ -19,20 +20,23 @@ export default function WeekScheduleAdmin() {
   const [weekSchedule, setWeekSchedule] = useState([])
   const [weekStartDate, setWeekStartDate] = useState(new Date().toISOString().slice(0, 10))
   const [weekDates, setWeekDates] = useState(getWeekDates(Date.now()))
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    db.schedules.getLatestSchedule().then(({data}) => {
-      if(data.length) {
-        const sortedSchedule = data.sort((a, b) => new Date(a.date) - new Date(b.date))
-        
-        const datedWeekSchedule = changeWeekScheduleDates(sortedSchedule)
-        setWeekSchedule(datedWeekSchedule) 
+    db.schedules.getLatestSchedule()
+      .then(({ data }) => {
+        if (data.length) {
+          const sortedSchedule = data.sort((a, b) => new Date(a.date) - new Date(b.date))
 
-      } else {
-        const datedWeekSchedule = changeWeekScheduleDates(defaultSchedule)
-        setWeekSchedule(datedWeekSchedule) 
-      }
-    })
+          const datedWeekSchedule = changeWeekScheduleDates(sortedSchedule)
+          setWeekSchedule(datedWeekSchedule)
+
+        } else {
+          const datedWeekSchedule = changeWeekScheduleDates(defaultSchedule)
+          setWeekSchedule(datedWeekSchedule)
+        }
+      })
+      .finally(() => setIsLoading(false))
   }, [])
 
   useEffect(() => {
@@ -52,7 +56,7 @@ export default function WeekScheduleAdmin() {
 
   const handlePostSchedule = () => {
     const validationError = weekScheduleValidator(weekSchedule)
-    
+
     if (validationError) {
       toast.error(validationError.message)
       return
@@ -136,7 +140,7 @@ export default function WeekScheduleAdmin() {
               Post Schedule
             </a>
           </div>
-          <div className='day-schedule-cards'>{getScheduleCards()}</div>
+          <div className='day-schedule-cards'>{isLoading ? <Loader/> : getScheduleCards()}</div>
           <ToastContainer />
         </AdminClassesLayout>
       </AdminLayout>

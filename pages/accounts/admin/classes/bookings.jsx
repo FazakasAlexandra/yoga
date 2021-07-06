@@ -6,6 +6,7 @@ import AdminLayout from '../../../../components/AdminLayout'
 import AdminClassesLayout from '../../../../components/AdminClassesLayout'
 import DayScheduleClass from '../../../../components/DayScheduleClass'
 import BookingCard from '../../../../components/BookingCard'
+import Loader from '../../../../components/Loader'
 import Feedback from '../../../../components/Feedback'
 import TextField from '@material-ui/core/TextField'
 import db from '../../../../db'
@@ -19,26 +20,33 @@ export default function Page() {
   const [classes, setClasses] = useState([])
   const [bookings, setBookings] = useState([])
   const [activeClass, setActiveClass] = useState(null)
+  const [bookingsLoading, setBookingsLoading] = useState(false);
+  const [classesLoading, setClassesLoading] = useState(true);
 
   useEffect(() => {
     if (!loading && !session) router.push({ pathname: '/' })
   }, [session])
 
   useEffect(() => {
-    db.schedules.getDayClasses(today).then((res) => {
-      setClasses(res.data)
-    })
+    db.schedules.getDayClasses(today)
+      .then((res) => {
+        setClasses(res.data)
+      })
+      .finally(() => setClassesLoading(false))
   }, [])
 
   useEffect(() => {
-    db.schedules.getDayClasses(date).then((res) => {
-      setBookings([])
-      setActiveClass(false)
-      setClasses(res.data)
-    })
+    db.schedules.getDayClasses(date)
+      .then((res) => {
+        setBookings([])
+        setActiveClass(false)
+        setClasses(res.data)
+      })
   }, [date])
 
   const handleArrowButton = (weekScheduleId) => {
+    setBookingsLoading(true);
+
     const updatedActieClass = classes.map((yogaClass) => {
       if (yogaClass.schedules_weeks_id == weekScheduleId) {
         setActiveClass(yogaClass)
@@ -50,9 +58,11 @@ export default function Page() {
 
     setClasses(updatedActieClass)
 
-    db.bookings.getClassBookings(weekScheduleId).then((res) => {
+    db.bookings.getClassBookings(weekScheduleId)
+    .then((res) => {
       setBookings(res.data)
     })
+    .finally(() => setBookingsLoading(false))
   }
 
   const getDayScheduleClasses = () => {
@@ -127,9 +137,7 @@ export default function Page() {
                 />
               </div>
               <div className='day-schedule-cards bookings'>
-                {classes.length > 0 ? (
-                  getDayScheduleClasses()
-                ) : (
+                {classesLoading ? <Loader /> : classes.length > 0 ? (getDayScheduleClasses()) : (
                   <Feedback
                     iconName='sadface'
                     message={`No classes scheduled for ${formatDate(
@@ -141,7 +149,7 @@ export default function Page() {
               </div>
             </div>
             <div className='booking-cards'>
-              {bookings.length > 0 ? getBookings() : displayMessages()}
+              {bookingsLoading ? <Loader /> : bookings.length > 0 ? getBookings() : displayMessages()}
             </div>
           </div>
         </AdminClassesLayout>

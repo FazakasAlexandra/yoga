@@ -17,16 +17,19 @@ export default function Page() {
   const [session, loading] = useSession()
   const [data, setData] = useState([])
   const [className, setClassName] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     if (!loading && !session) router.push({ pathname: '/' })
   }, [session])
 
   useEffect(() => {
-    db.classes.dailyAttendences(router.query.id).then((res) => {
+    db.classes.dailyAttendences(router.query.id)
+    .then((res) => {
       setData(formatData(res.data))
       res.data.length == 0 ? '' : setClassName(res.data[0].class_name)
     })
+    .finally(() => setIsLoading(false))
   }, [])
 
   const formatData = (data) => {
@@ -103,7 +106,7 @@ export default function Page() {
             </button>
           </div>
           <div className='chart-container' style={{ width: '100%' }}>
-            {!data ? (
+            {isLoading ? <Loader/> : !data ? (
               <Feedback
                 iconName='sadface'
                 message={`This class has not enough attendances for statistics !`}
