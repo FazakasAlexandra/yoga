@@ -6,7 +6,7 @@ import db from '../db.js'
 
 export default function Subscriptions() {
   const [subscriptions, setSubscriptions] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     db.subscriptions.getSubscriptions()
