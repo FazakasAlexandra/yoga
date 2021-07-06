@@ -1,15 +1,19 @@
 import SubscriptionCard from '../components/SubscriptionCard'
 import Layout from '../components/Layout'
+import Loader from '../components/Loader'
 import { useState, useEffect } from 'react'
 import db from '../db.js'
 
 export default function Subscriptions() {
   const [subscriptions, setSubscriptions] = useState([])
-  console.log(subscriptions.length)
+  const [isLoading, setIsLoading] = useState(false)
+
   useEffect(() => {
-    db.subscriptions.getSubscriptions().then((res) => {
+    db.subscriptions.getSubscriptions()
+    .then((res) => {
       setSubscriptions(res.data)
     })
+    .finally(() => setIsLoading(false))
   }, [])
 
   const getSubscriptions = () => {
@@ -25,7 +29,11 @@ export default function Subscriptions() {
       <div className='subscriptions'>
         <div className='color'></div>
         <div className='radius'></div>
-        {subscriptions.length ? getSubscriptions() : <h2 className="no-data-txt">NO SUBSCRIPTIONS AVAILABLE</h2>}
+        {
+          isLoading ? <Loader /> :
+            subscriptions.length ? getSubscriptions() :
+              <h2 className="no-data-txt">NO SUBSCRIPTIONS AVAILABLE</h2>
+        }
       </div>
     </Layout>
   )
