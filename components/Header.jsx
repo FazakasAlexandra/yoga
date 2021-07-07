@@ -34,7 +34,7 @@ export default function Header({ activeTab }) {
 
   const login = (e) => {
     e.preventDefault()
-    signIn("google", { callbackUrl: 'https://yoga-liard.vercel.app'})
+    signIn("google")
   }
 
   const logout = async (e) => {
