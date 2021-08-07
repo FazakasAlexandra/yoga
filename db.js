@@ -1,5 +1,5 @@
 const db = {
-  baseURL: 'https://yoga.afazakas.com/',
+  baseURL: 'https://yoga.afazakas.com',
   getJWT: () => {
     return fetch('/api/examples/jwt').then((res) => res.json())
   },
